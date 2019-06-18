@@ -20,5 +20,11 @@ module RDI
       context.dependency(name)
     end
 
+    def dependency?(name)
+      context = @storage.get(STORAGE_KEY)
+      return false unless context
+      context.dependency?(name)
+    end
+
   end
 end

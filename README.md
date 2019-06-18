@@ -47,7 +47,7 @@ container.build do
 end
 ```
 
-Another options is having a configuration file:
+Another option is having a configuration file:
 ```ruby
 container.read('resources/rdi/development')
 ```
@@ -86,12 +86,38 @@ class Writer
 end
 ```
 
-## Development
+And the autowired accessor can have a custom name:
+```ruby
+require 'rdi/autowired'
+class Writer
+  autowired :elasticsearch_repository, as: :repository
+  def write(something)
+    repository.save(something)
+  end
+end
+```
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+## Testing
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
-## Contributing
+Lets see an example in RSpec:
+```ruby
+require 'rdi/autowired'
+require 'rspec'
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/rdi.
+RSpec.describe Writer do
+
+  let(:repository_mock) { double 'repository' }
+
+  before :each do
+    RDI.context.inject(:repository) { repository_mock }
+  end
+
+  it 'should call repository#save' do
+    expect(repository_mock).to receive(:save).with('something').once
+    writer = Writer.new
+    writer.write('something')
+  end
+
+end
+```
